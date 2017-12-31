@@ -39,7 +39,7 @@ const initButton = store => text => {
   const btn = Object.assign({ text, type: NUM }, buttonData[text]);
   return {
     ...btn,
-    onClick: () => store.commit('press', { type: btn.type, value: text })
+    onClick: () => store.dispatch('press', { type: btn.type, value: text })
   };
 };
 

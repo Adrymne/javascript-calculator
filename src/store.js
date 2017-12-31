@@ -3,22 +3,26 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-const NUM = 'number';
-const OP = 'operator';
-const CMD = 'command';
+export const NUM = 'number';
+export const OP = 'operator';
+export const CMD = 'command';
 
 const store = new Vuex.Store({
   state: {
     current: ''
   },
   mutations: {
-    press: (state, { type, value }) => {
+    inputNum: (state, value) => {
+      state.current += value;
+    }
+  },
+  actions: {
+    press: ({ commit }, { type, value }) => {
       if (type === NUM) {
-        state.current += value;
+        commit('inputNum', value);
       }
     }
   }
 });
 
 export default store;
-export { NUM, OP, CMD };
