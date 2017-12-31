@@ -1,7 +1,7 @@
 <template>
   <div id="display-window">
     <div>
-      {{ expression }}
+      {{ expression || '&nbsp;' }}
     </div>
     <h1>
       {{ current || '&nbsp;' }}
