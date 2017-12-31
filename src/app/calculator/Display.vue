@@ -1,7 +1,7 @@
 <template>
   <div id="display-window">
     <div>
-      2 * 3 + 1
+      {{ expression }}
     </div>
     <h1>
       {{ current || '&nbsp;' }}
@@ -13,7 +13,10 @@
 import { mapState } from 'vuex';
 
 export default {
-  computed: mapState(['current'])
+  computed: mapState({
+    current: 'current',
+    expression: state => state.expression.map(({ value }) => value).join(' ')
+  })
 };
 </script>
 
