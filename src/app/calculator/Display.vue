@@ -4,10 +4,19 @@
       2 * 3 + 1
     </div>
     <h1>
-      4.1
+      {{ current || '&nbsp;' }}
     </h1>
   </div>
 </template>
+
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  computed: mapState(['current'])
+};
+</script>
+
 
 <style>
 #display-window {
