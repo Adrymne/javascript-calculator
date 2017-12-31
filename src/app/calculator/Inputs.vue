@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { OP, CMD, NUM } from 'store';
+import { OP, CMD, NUM } from 'types';
 
 /* prettier-ignore */
 const buttonOrder = [

@@ -1,12 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { findLast } from './util';
+import evaluate from './evaluate';
+import { NUM, OP } from './types';
 
 Vue.use(Vuex);
-
-export const NUM = 'number';
-export const OP = 'operator';
-export const CMD = 'command';
 
 export const mutations = {
   pushOperator: (state, value) => {
@@ -37,6 +35,15 @@ export const mutations = {
     if (state.expression.length === 0) {
       return;
     }
+
+    const result = evaluate(
+      state.expression.concat({ type: NUM, value: state.current })
+    );
+
+    Object.assign(state, {
+      expression: [],
+      current: result.toString()
+    });
   }
 };
 
