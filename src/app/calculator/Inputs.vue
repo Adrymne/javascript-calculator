@@ -4,16 +4,15 @@
       v-for="btn in buttons"
       :key="btn.text"
       :style="btn.style"
-      :variant="btn.type ? 'secondary' : 'light'">
+      :variant="btn.type ? 'secondary' : 'light'"
+      @click="btn.onClick">
       {{ btn.text }}
     </b-btn>
   </div>
 </template>
 
 <script>
-// TODO: import these values as type constants
-const OP = 'operator';
-const CMD = 'command';
+import { OP, CMD, NUM } from 'types';
 
 /* prettier-ignore */
 const buttonOrder = [
@@ -36,12 +35,18 @@ const buttonData = {
 
   '0': { style: { width: '50%' } }
 };
-const buttons = buttonOrder.map(text =>
-  Object.assign({ text }, buttonData[text])
-);
+const initButton = store => text => {
+  const btn = Object.assign({ text, type: NUM }, buttonData[text]);
+  return {
+    ...btn,
+    onClick: () => store.dispatch('press', { type: btn.type, value: text })
+  };
+};
 
 export default {
-  data: () => ({ buttons })
+  data() {
+    return { buttons: buttonOrder.map(initButton(this.$store)) };
+  }
 };
 </script>
 

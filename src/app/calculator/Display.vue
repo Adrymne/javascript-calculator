@@ -1,13 +1,25 @@
 <template>
   <div id="display-window">
     <div>
-      2 * 3 + 1
+      {{ expression || '&nbsp;' }}
     </div>
     <h1>
-      4.1
+      {{ current || '&nbsp;' }}
     </h1>
   </div>
 </template>
+
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  computed: mapState({
+    current: 'current',
+    expression: state => state.expression.map(({ value }) => value).join(' ')
+  })
+};
+</script>
+
 
 <style>
 #display-window {
