@@ -56,6 +56,7 @@ const store = new Vuex.Store({
   actions: {
     press: ({ commit }, { type, value }) => {
       if (type === OP) {
+        commit('evaluate');
         commit('pushOperator', value);
       } else if (type === NUM) {
         commit('inputNum', value);
