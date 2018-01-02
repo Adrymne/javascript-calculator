@@ -9,7 +9,8 @@ Vue.use(Vuex);
 const DEFAULT = undefined;
 const STATE_DEFAULTS = {
   expression: [],
-  current: ''
+  current: '',
+  result: '0'
 };
 const set = values =>
   Object.entries(values).reduce(
@@ -60,11 +61,20 @@ export const mutations = {
         current: result.toString()
       })
     );
+  },
+  prepareNext: state => {
+    Object.assign(
+      state,
+      set({
+        result: state.current,
+        current: DEFAULT
+      })
+    );
   }
 };
 
 const store = new Vuex.Store({
-  state: set({ expression: DEFAULT, current: DEFAULT }),
+  state: set({ expression: DEFAULT, current: DEFAULT, result: DEFAULT }),
   mutations,
   actions: {
     press: ({ commit }, { type, value }) => {
@@ -83,6 +93,7 @@ const store = new Vuex.Store({
           break;
         case '=':
           commit('evaluate');
+          commit('prepareNext');
           break;
         default:
           throw new Error(`Unknown input: ${{ type, value }}`);

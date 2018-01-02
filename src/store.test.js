@@ -135,3 +135,21 @@ test('evaluate', tape => {
 
   tape.end();
 });
+
+test('prepareNext', t => {
+  const subject = sut.prepareNext;
+  const store = {
+    expression: [],
+    current: '5',
+    result: 0
+  };
+
+  subject(store);
+
+  t.deepEqual(store, {
+    expression: [],
+    current: '',
+    result: '5'
+  });
+  t.end();
+});

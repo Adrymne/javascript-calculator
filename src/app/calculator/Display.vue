@@ -4,7 +4,7 @@
       {{ expression || '&nbsp;' }}
     </div>
     <h1>
-      {{ current || '&nbsp;' }}
+      {{ current || result }}
     </h1>
   </div>
 </template>
@@ -15,6 +15,7 @@ import { mapState } from 'vuex';
 export default {
   computed: mapState({
     current: 'current',
+    result: 'result',
     expression: state => state.expression.map(({ value }) => value).join(' ')
   })
 };
