@@ -6,6 +6,20 @@ import { NUM, OP } from './types';
 
 Vue.use(Vuex);
 
+const DEFAULT = undefined;
+const STATE_DEFAULTS = {
+  expression: [],
+  current: ''
+};
+const set = values =>
+  Object.entries(values).reduce(
+    (result, [key, value]) =>
+      Object.assign(result, {
+        [key]: typeof value !== 'undefined' ? value : STATE_DEFAULTS[key]
+      }),
+    {}
+  );
+
 export const mutations = {
   pushOperator: (state, value) => {
     state.expression = [
@@ -18,17 +32,17 @@ export const mutations = {
     state.current += value;
   },
   clearAll: state => {
-    Object.assign(state, { expression: [], current: '' });
+    Object.assign(state, set({ expression: DEFAULT, current: DEFAULT }));
   },
   clearEntry: state => {
     if (state.current) {
-      state.current = '';
+      Object.assign(state, set({ current: DEFAULT }));
     } else {
       const last = findLast(({ type }) => type === NUM, state.expression);
-      Object.assign(state, {
-        expression: [],
-        current: last ? last.value : ''
-      });
+      Object.assign(
+        state,
+        set({ expression: DEFAULT, current: last ? last.value : DEFAULT })
+      );
     }
   },
   evaluate: state => {
@@ -39,19 +53,18 @@ export const mutations = {
     const result = evaluate(
       state.expression.concat({ type: NUM, value: state.current })
     );
-
-    Object.assign(state, {
-      expression: [],
-      current: result.toString()
-    });
+    Object.assign(
+      state,
+      set({
+        expression: DEFAULT,
+        current: result.toString()
+      })
+    );
   }
 };
 
 const store = new Vuex.Store({
-  state: {
-    expression: [],
-    current: ''
-  },
+  state: set({ expression: DEFAULT, current: DEFAULT }),
   mutations,
   actions: {
     press: ({ commit }, { type, value }) => {

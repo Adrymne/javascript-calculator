@@ -2,27 +2,20 @@ import test from 'tape';
 import { NUM, OP } from './types';
 import { mutations as sut } from './store';
 
-test('pushOperator', tape => {
+test('pushOperator', t => {
   const subject = sut.pushOperator;
+  const store = {
+    expression: [],
+    current: '28.1'
+  };
 
-  tape.test('no expression', t => {
-    const store = {
-      expression: [],
-      current: '28.1'
-    };
+  subject(store, '*');
 
-    subject(store, '*');
-
-    t.deepEqual(store, {
-      expression: [{ type: NUM, value: '28.1' }, { type: OP, value: '*' }],
-      current: ''
-    });
-    t.end();
+  t.deepEqual(store, {
+    expression: [{ type: NUM, value: '28.1' }, { type: OP, value: '*' }],
+    current: ''
   });
-
-  // TODO: expression exists
-
-  tape.end();
+  t.end();
 });
 
 test('clearAll', t => {
