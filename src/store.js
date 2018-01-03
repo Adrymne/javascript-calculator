@@ -30,6 +30,9 @@ export const mutations = {
     state.current = '';
   },
   inputNum: (state, value) => {
+    if (value === '.' && state.current.includes('.')) {
+      return;
+    }
     state.current += value;
   },
   clearAll: state => {

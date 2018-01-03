@@ -2,6 +2,34 @@ import test from 'tape';
 import { NUM, OP } from './types';
 import { mutations as sut } from './store';
 
+test('inputNum', tape => {
+  const subject = sut.inputNum;
+
+  tape.test('input num', t => {
+    const store = { current: '28.1' };
+
+    subject(store, '2');
+
+    t.deepEqual(store, { current: '28.12' });
+    t.end();
+  });
+
+  tape.test('only allow 1 decimal dot', t => {
+    const store = {
+      current: '28.1'
+    };
+
+    subject(store, '.');
+
+    t.deepEqual(store, {
+      current: '28.1'
+    });
+    t.end();
+  });
+
+  tape.end();
+});
+
 test('pushOperator', t => {
   const subject = sut.pushOperator;
   const store = {
