@@ -1,17 +1,22 @@
 import test from 'tape';
-import evaluate from './evaluate';
-import { NUM, OP } from './store';
+import { parse } from './evaluate';
 
-test('evaluate', t => {
-  const subject = evaluate;
-  const tokens = [
-    { type: NUM, value: '25' },
-    { type: OP, value: '/' },
-    { type: NUM, value: '2' }
-  ];
+test('parse', tape => {
+  const subject = parse;
 
-  const result = subject(tokens);
+  tape.test('left to right evaluation', t => {
+    const result = subject('1 - 4 - 3');
 
-  t.equal(result, 12.5);
-  t.end();
+    t.equal(result, -6);
+    t.end();
+  });
+
+  tape.test('operator precedence', t => {
+    const result = subject('2 * 3 * 1.5 - 1 + 5 * 4 / 2');
+
+    t.equal(result, 18);
+    t.end();
+  });
+
+  tape.end();
 });

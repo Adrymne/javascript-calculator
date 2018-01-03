@@ -100,7 +100,7 @@ test('clearEntry', tape => {
   tape.end();
 });
 
-test('evaluate', tape => {
+test.skip('evaluate', tape => {
   const subject = sut.evaluate;
 
   tape.test('expression exists', t => {
