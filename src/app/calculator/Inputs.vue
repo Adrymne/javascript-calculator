@@ -1,18 +1,19 @@
 <template>
   <div id="calculator-inputs">
-    <b-btn
+    <component
       v-for="btn in buttons"
+      :is="btn.component"
       :key="btn.text"
       :variant="inputVariant(btn)"
       @click="btn.onClick">
-      {{ btnText(btn) }}
-    </b-btn>
+      {{ btn.text }}
+    </component>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import { OP, CMD, NUM } from 'types';
+import ModeToggle from './inputs/ModeToggle.vue';
 
 /* prettier-ignore */
 const buttonOrder = [
@@ -26,7 +27,7 @@ const buttonData = {
   AC: { type: CMD },
   CE: { type: CMD },
   '=': { type: CMD },
-  MODE: { type: CMD },
+  MODE: { type: CMD, component: 'mode-toggle' },
 
   '%': { type: OP },
   '+': { type: OP },
@@ -35,7 +36,10 @@ const buttonData = {
   '/': { type: OP }
 };
 const initButton = store => text => {
-  const btn = Object.assign({ text, type: NUM }, buttonData[text]);
+  const btn = Object.assign(
+    { text, type: NUM, component: 'b-btn' },
+    buttonData[text]
+  );
   return {
     ...btn,
     onClick: () => store.dispatch('press', { type: btn.type, value: text })
@@ -43,19 +47,15 @@ const initButton = store => text => {
 };
 
 export default {
+  components: {
+    'mode-toggle': ModeToggle
+  },
   data() {
     return { buttons: buttonOrder.map(initButton(this.$store)) };
   },
-  computed: mapState(['isLazy']),
   methods: {
     inputVariant(btn) {
       return btn.type === NUM ? 'light' : 'secondary';
-    },
-    btnText(btn) {
-      if (btn.text === 'MODE') {
-        return this.isLazy ? 'LAZY' : 'EAGER';
-      }
-      return btn.text;
     }
   }
 };
