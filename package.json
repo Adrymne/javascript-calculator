@@ -1,7 +1,7 @@
 {
   "name": "javascript-calculator",
   "description": "A simple web-based calculator.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Adrymne <jealousy.of.tomorrow@gmail.com>",
   "license": "MIT",
   "private": true,
