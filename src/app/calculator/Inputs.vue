@@ -72,6 +72,7 @@ div#calculator-inputs {
   border-radius: 0;
   border: 0.5px solid lightgray !important;
   height: 6vw;
+  min-height: 50px;
 
   font-size: 1.5em;
 }

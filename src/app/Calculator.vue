@@ -28,6 +28,7 @@ export default {
 <style>
 #calculator {
   width: 50vw;
+  min-width: 400px;
 }
 </style>
 
