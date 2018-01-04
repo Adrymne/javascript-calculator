@@ -3,15 +3,15 @@
     <b-btn
       v-for="btn in buttons"
       :key="btn.text"
-      :style="btn.style"
-      :variant="btn.type ? 'secondary' : 'light'"
+      :variant="inputVariant(btn)"
       @click="btn.onClick">
-      {{ btn.text }}
+      {{ btnText(btn) }}
     </b-btn>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import { OP, CMD, NUM } from 'types';
 
 /* prettier-ignore */
@@ -20,20 +20,19 @@ const buttonOrder = [
   '7', '8', '9', '*',
   '4', '5', '6', '-',
   '1', '2', '3', '+',
-  '0', '.', '='
+  '0', '.', 'MODE', '='
 ];
 const buttonData = {
   AC: { type: CMD },
   CE: { type: CMD },
   '=': { type: CMD },
+  MODE: { type: CMD },
 
   '%': { type: OP },
   '+': { type: OP },
   '-': { type: OP },
   '*': { type: OP, text: '\u00D7' },
-  '/': { type: OP },
-
-  '0': { style: { width: '50%' } }
+  '/': { type: OP }
 };
 const initButton = store => text => {
   const btn = Object.assign({ text, type: NUM }, buttonData[text]);
@@ -46,6 +45,18 @@ const initButton = store => text => {
 export default {
   data() {
     return { buttons: buttonOrder.map(initButton(this.$store)) };
+  },
+  computed: mapState(['isLazy']),
+  methods: {
+    inputVariant(btn) {
+      return btn.type === NUM ? 'light' : 'secondary';
+    },
+    btnText(btn) {
+      if (btn.text === 'MODE') {
+        return this.isLazy ? 'LAZY' : 'EAGER';
+      }
+      return btn.text;
+    }
   }
 };
 </script>

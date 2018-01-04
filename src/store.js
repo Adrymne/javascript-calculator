@@ -8,6 +8,7 @@ Vue.use(Vuex);
 
 const DEFAULT = undefined;
 const STATE_DEFAULTS = {
+  isLazy: false,
   expression: [],
   current: '',
   result: '\xa0' // nonbreaking space
@@ -73,16 +74,26 @@ export const mutations = {
         current: DEFAULT
       })
     );
+  },
+  toggleEvaluationMode: state => {
+    state.isLazy = !state.isLazy;
   }
 };
 
 const store = new Vuex.Store({
-  state: set({ expression: DEFAULT, current: DEFAULT, result: '0' }),
+  state: set({
+    expression: DEFAULT,
+    current: DEFAULT,
+    result: '0',
+    isLazy: DEFAULT
+  }),
   mutations,
   actions: {
-    press: ({ commit }, { type, value }) => {
+    press: ({ state, commit }, { type, value }) => {
       if (type === OP) {
-        commit('evaluate');
+        if (!state.isLazy) {
+          commit('evaluate');
+        }
         commit('pushOperator', value);
       } else if (type === NUM) {
         commit('inputNum', value);
@@ -98,6 +109,9 @@ const store = new Vuex.Store({
           case '=':
             commit('evaluate');
             commit('prepareNext');
+            break;
+          case 'MODE':
+            commit('toggleEvaluationMode');
             break;
           default:
             throw new Error(
