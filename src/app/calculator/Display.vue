@@ -16,7 +16,7 @@ export default {
   computed: mapState({
     current: 'current',
     result: 'result',
-    expression: state => state.expression.map(({ value }) => value).join(' ')
+    expression: state => state.expression.join(' ')
   })
 };
 </script>
