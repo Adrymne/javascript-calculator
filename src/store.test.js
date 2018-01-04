@@ -32,6 +32,21 @@ test('inputNum', tape => {
 test('pushOperator', tape => {
   const subject = sut.pushOperator;
 
+  tape.test('empty current', t => {
+    const store = {
+      expression: [],
+      current: ''
+    };
+
+    subject(store, '-');
+
+    t.deepEqual(store, {
+      expression: ['0', '-'],
+      current: ''
+    });
+    t.end();
+  });
+
   tape.test('empty expression', t => {
     const store = {
       expression: [],
@@ -176,6 +191,21 @@ test('evaluate', tape => {
     t.deepEqual(store, {
       expression: [],
       current: '71'
+    });
+    t.end();
+  });
+
+  tape.test('no current (assume 0)', t => {
+    const store = {
+      expression: ['5', '*'],
+      current: ''
+    };
+
+    subject(store);
+
+    t.deepEqual(store, {
+      expression: [],
+      current: '0'
     });
     t.end();
   });

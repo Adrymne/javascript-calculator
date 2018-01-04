@@ -11,7 +11,7 @@ const STATE_DEFAULTS = {
   isLazy: false,
   expression: [],
   current: '',
-  result: '\xa0' // nonbreaking space
+  result: '0' // nonbreaking space
 };
 const set = values =>
   Object.entries(values).reduce(
@@ -26,7 +26,7 @@ const isNum = value => !Number.isNaN(parseFloat(value));
 
 export const mutations = {
   pushOperator: (state, value) => {
-    state.expression = state.expression.concat(state.current, value);
+    state.expression = state.expression.concat(state.current || '0', value);
     state.current = '';
   },
   inputNum: (state, value) => {
@@ -57,7 +57,9 @@ export const mutations = {
       return;
     }
 
-    const result = evaluate(state.expression.concat(state.current).join(' '));
+    const result = evaluate(
+      state.expression.concat(state.current || '0').join(' ')
+    );
     Object.assign(
       state,
       set({
@@ -70,7 +72,7 @@ export const mutations = {
     Object.assign(
       state,
       set({
-        result: state.current,
+        result: state.current || DEFAULT,
         current: DEFAULT
       })
     );
