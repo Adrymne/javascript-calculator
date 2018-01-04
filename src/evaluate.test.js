@@ -1,5 +1,5 @@
 import test from 'tape';
-import { parse } from './evaluate';
+import parse from './evaluate';
 
 test('parse', tape => {
   const subject = parse;

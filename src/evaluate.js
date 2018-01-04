@@ -52,4 +52,4 @@ const arithmetic = createLanguage({
   multOp: () => regex(/[*/%]/).trim(optWhitespace)
 });
 
-export const parse = str => arithmetic.expr.tryParse(str);
+export default str => arithmetic.expr.tryParse(str);

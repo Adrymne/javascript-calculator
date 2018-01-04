@@ -10,7 +10,7 @@ const DEFAULT = undefined;
 const STATE_DEFAULTS = {
   expression: [],
   current: '',
-  result: '0'
+  result: '\xa0' // nonbreaking space
 };
 const set = values =>
   Object.entries(values).reduce(
@@ -21,19 +21,21 @@ const set = values =>
     {}
   );
 
+const isNum = value => !Number.isNaN(parseFloat(value));
+
 export const mutations = {
   pushOperator: (state, value) => {
-    state.expression = [
-      { type: NUM, value: state.current },
-      { type: OP, value }
-    ];
+    state.expression = state.expression.concat(state.current, value);
     state.current = '';
   },
   inputNum: (state, value) => {
     if (value === '.' && state.current.includes('.')) {
       return;
     }
-    state.current += value;
+    Object.assign(state, set({ current: state.current + value }));
+  },
+  clearResult: state => {
+    Object.assign(state, set({ result: DEFAULT }));
   },
   clearAll: state => {
     Object.assign(state, set({ expression: DEFAULT, current: DEFAULT }));
@@ -42,10 +44,10 @@ export const mutations = {
     if (state.current) {
       Object.assign(state, set({ current: DEFAULT }));
     } else {
-      const last = findLast(({ type }) => type === NUM, state.expression);
+      const last = findLast(isNum, state.expression);
       Object.assign(
         state,
-        set({ expression: DEFAULT, current: last ? last.value : DEFAULT })
+        set({ expression: DEFAULT, current: last ? last : DEFAULT })
       );
     }
   },
@@ -54,9 +56,7 @@ export const mutations = {
       return;
     }
 
-    const result = evaluate(
-      state.expression.concat({ type: NUM, value: state.current })
-    );
+    const result = evaluate(state.expression.concat(state.current).join(' '));
     Object.assign(
       state,
       set({
@@ -77,7 +77,7 @@ export const mutations = {
 };
 
 const store = new Vuex.Store({
-  state: set({ expression: DEFAULT, current: DEFAULT, result: DEFAULT }),
+  state: set({ expression: DEFAULT, current: DEFAULT, result: '0' }),
   mutations,
   actions: {
     press: ({ commit }, { type, value }) => {
@@ -86,20 +86,24 @@ const store = new Vuex.Store({
         commit('pushOperator', value);
       } else if (type === NUM) {
         commit('inputNum', value);
-      }
-      switch (value) {
-        case 'AC':
-          commit('clearAll');
-          break;
-        case 'CE':
-          commit('clearEntry');
-          break;
-        case '=':
-          commit('evaluate');
-          commit('prepareNext');
-          break;
-        default:
-          throw new Error(`Unknown input: ${{ type, value }}`);
+        commit('clearResult');
+      } else {
+        switch (value) {
+          case 'AC':
+            commit('clearAll');
+            break;
+          case 'CE':
+            commit('clearEntry');
+            break;
+          case '=':
+            commit('evaluate');
+            commit('prepareNext');
+            break;
+          default:
+            throw new Error(
+              `Unknown input: ${JSON.stringify({ type, value })}`
+            );
+        }
       }
     }
   }

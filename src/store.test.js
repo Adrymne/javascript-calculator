@@ -1,5 +1,4 @@
 import test from 'tape';
-import { NUM, OP } from './types';
 import { mutations as sut } from './store';
 
 test('inputNum', tape => {
@@ -30,26 +29,46 @@ test('inputNum', tape => {
   tape.end();
 });
 
-test('pushOperator', t => {
+test('pushOperator', tape => {
   const subject = sut.pushOperator;
-  const store = {
-    expression: [],
-    current: '28.1'
-  };
 
-  subject(store, '*');
+  tape.test('empty expression', t => {
+    const store = {
+      expression: [],
+      current: '28.1'
+    };
 
-  t.deepEqual(store, {
-    expression: [{ type: NUM, value: '28.1' }, { type: OP, value: '*' }],
-    current: ''
+    subject(store, '*');
+
+    t.deepEqual(store, {
+      expression: ['28.1', '*'],
+      current: ''
+    });
+    t.end();
   });
-  t.end();
+
+  tape.test('non-empty expression', t => {
+    const store = {
+      expression: ['28.1', '*'],
+      current: '3'
+    };
+
+    subject(store, '+');
+
+    t.deepEqual(store, {
+      expression: ['28.1', '*', '3', '+'],
+      current: ''
+    });
+    t.end();
+  });
+
+  tape.end();
 });
 
 test('clearAll', t => {
   const subject = sut.clearAll;
   const store = {
-    expression: [{ type: NUM, value: '25' }, { type: OP, value: '+' }],
+    expression: ['25', '+'],
     current: '32'
   };
 
@@ -82,14 +101,14 @@ test('clearEntry', tape => {
 
   tape.test('expression exists, current exists', t => {
     const store = {
-      expression: [{ type: NUM, value: '25' }, { type: OP, value: '+' }],
+      expression: ['25', '+'],
       current: '32'
     };
 
     subject(store);
 
     t.deepEqual(store, {
-      expression: [{ type: NUM, value: '25' }, { type: OP, value: '+' }],
+      expression: ['25', '+'],
       current: ''
     });
     t.end();
@@ -97,7 +116,7 @@ test('clearEntry', tape => {
 
   tape.test('expression exists, no current', t => {
     const store = {
-      expression: [{ type: NUM, value: '25' }, { type: OP, value: '+' }],
+      expression: ['25', '+'],
       current: ''
     };
 
@@ -128,12 +147,12 @@ test('clearEntry', tape => {
   tape.end();
 });
 
-test.skip('evaluate', tape => {
+test('evaluate', tape => {
   const subject = sut.evaluate;
 
   tape.test('expression exists', t => {
     const store = {
-      expression: [{ type: NUM, value: '25' }, { type: OP, value: '*' }],
+      expression: ['25', '*'],
       current: '3'
     };
 
