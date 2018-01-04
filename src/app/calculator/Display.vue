@@ -1,0 +1,38 @@
+<template>
+  <div id="display-window">
+    <div>
+      {{ expression || '&nbsp;' }}
+    </div>
+    <h1>
+      {{ current || result }}
+    </h1>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  computed: mapState({
+    current: 'current',
+    result: 'result',
+    expression: state => state.expression.join(' ')
+  })
+};
+</script>
+
+
+<style>
+#display-window {
+  background-color: gray;
+  padding: 0.1em 0.5em;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+h1 {
+  margin-bottom: 0;
+}
+</style>
