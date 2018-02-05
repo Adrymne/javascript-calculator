@@ -32,32 +32,53 @@ test('inputNum', tape => {
 test('pushOperator', tape => {
   const subject = sut.pushOperator;
 
-  tape.test('empty current', t => {
+  tape.test('empty current, empty result', t => {
     const store = {
       expression: [],
-      current: ''
+      current: '',
+      result: ''
     };
 
     subject(store, '-');
 
     t.deepEqual(store, {
       expression: ['0', '-'],
-      current: ''
+      current: '',
+      result: ''
     });
     t.end();
   });
 
-  tape.test('empty expression', t => {
+  tape.test('empty expression, current exists', t => {
     const store = {
       expression: [],
-      current: '28.1'
+      current: '28.1',
+      result: ''
     };
 
     subject(store, '*');
 
     t.deepEqual(store, {
       expression: ['28.1', '*'],
-      current: ''
+      current: '',
+      result: ''
+    });
+    t.end();
+  });
+
+  tape.test('empty expression, current empty, result exists', t => {
+    const store = {
+      expression: [],
+      current: '',
+      result: '3'
+    };
+
+    subject(store, '+');
+
+    t.deepEqual(store, {
+      expression: ['3', '+'],
+      current: '',
+      result: ''
     });
     t.end();
   });
@@ -65,14 +86,16 @@ test('pushOperator', tape => {
   tape.test('non-empty expression', t => {
     const store = {
       expression: ['28.1', '*'],
-      current: '3'
+      current: '3',
+      result: '1'
     };
 
     subject(store, '+');
 
     t.deepEqual(store, {
       expression: ['28.1', '*', '3', '+'],
-      current: ''
+      current: '',
+      result: ''
     });
     t.end();
   });

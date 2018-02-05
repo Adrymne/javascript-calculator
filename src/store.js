@@ -11,7 +11,7 @@ const STATE_DEFAULTS = {
   isLazy: false,
   expression: [],
   current: '',
-  result: '0' // nonbreaking space
+  result: '0'
 };
 const set = values =>
   Object.entries(values).reduce(
@@ -23,11 +23,13 @@ const set = values =>
   );
 
 const isNum = value => !Number.isNaN(parseFloat(value));
+const getCurrent = state => state.current || state.result || '0';
 
 export const mutations = {
   pushOperator: (state, value) => {
-    state.expression = state.expression.concat(state.current || '0', value);
+    state.expression = state.expression.concat(getCurrent(state), value);
     state.current = '';
+    state.result = '';
   },
   inputNum: (state, value) => {
     if (value === '.' && state.current.includes('.')) {
@@ -83,13 +85,11 @@ export const mutations = {
 };
 
 const store = new Vuex.Store({
-  state: set({
-    expression: DEFAULT,
-    current: DEFAULT,
-    result: '0',
-    isLazy: DEFAULT
-  }),
+  state: set(STATE_DEFAULTS),
   mutations,
+  getters: {
+    current: getCurrent
+  },
   actions: {
     press: ({ state, commit }, { type, value }) => {
       if (type === OP) {
