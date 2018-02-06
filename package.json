@@ -1,14 +1,15 @@
 {
   "name": "javascript-calculator",
   "description": "A simple web-based calculator.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Adrymne <jealousy.of.tomorrow@gmail.com>",
   "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "test": "cross-env NODE_ENV=test babel-tape-runner src/**/*.test.js | tap-difflet"
+    "test":
+      "cross-env NODE_ENV=test babel-tape-runner src/**/*.test.js | tap-difflet"
   },
   "dependencies": {
     "bootstrap": "^4.0.0-beta.2",
@@ -18,11 +19,7 @@
     "vue": "^2.5.11",
     "vuex": "^3.0.1"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ],
+  "browserslist": ["> 1%", "last 2 versions", "not ie <= 8"],
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
