@@ -1,28 +1,41 @@
 import test from 'tape';
-import { mutations as sut } from './store';
+import { mutations as sut, Value } from './store';
 
 test('inputNum', tape => {
   const subject = sut.inputNum;
-
-  tape.test('input num', t => {
-    const store = { current: '28.1' };
+  tape.test('current :: None', t => {
+    const store = { current: Value.None };
 
     subject(store, '2');
 
-    t.deepEqual(store, { current: '28.12' });
+    t.deepEqual(store, { current: Value.Input('2') });
+    t.end();
+  });
+
+  tape.test('current :: Result', t => {
+    const store = { current: Value.Result(3) };
+
+    subject(store, '4');
+
+    t.deepEqual(store, { current: Value.Input('4') });
+    t.end();
+  });
+
+  tape.test('current :: Input', t => {
+    const store = { current: Value.Input('28.1') };
+
+    subject(store, '2');
+
+    t.deepEqual(store, { current: Value.Input('28.12') });
     t.end();
   });
 
   tape.test('only allow 1 decimal dot', t => {
-    const store = {
-      current: '28.1'
-    };
+    const store = { current: Value.Input('28.1') };
 
     subject(store, '.');
 
-    t.deepEqual(store, {
-      current: '28.1'
-    });
+    t.deepEqual(store, { current: Value.Input('28.1') });
     t.end();
   });
 
@@ -32,53 +45,41 @@ test('inputNum', tape => {
 test('pushOperator', tape => {
   const subject = sut.pushOperator;
 
-  tape.test('empty current, empty result', t => {
-    const store = {
-      expression: [],
-      current: '',
-      result: ''
-    };
+  tape.test('curent :: None', t => {
+    const store = { expression: [], current: Value.None };
 
     subject(store, '-');
 
-    t.deepEqual(store, {
-      expression: ['0', '-'],
-      current: '',
-      result: ''
-    });
+    t.deepEqual(store, { expression: ['0', '-'], current: Value.None });
     t.end();
   });
 
-  tape.test('empty expression, current exists', t => {
+  tape.test('current :: Result', t => {
     const store = {
       expression: [],
-      current: '28.1',
-      result: ''
+      current: Value.Result(3)
     };
 
     subject(store, '*');
 
     t.deepEqual(store, {
-      expression: ['28.1', '*'],
-      current: '',
-      result: ''
+      expression: ['3', '*'],
+      current: Value.None
     });
     t.end();
   });
 
-  tape.test('empty expression, current empty, result exists', t => {
+  tape.test('current :: Input', t => {
     const store = {
       expression: [],
-      current: '',
-      result: '3'
+      current: Value.Input('28.1')
     };
 
     subject(store, '+');
 
     t.deepEqual(store, {
-      expression: ['3', '+'],
-      current: '',
-      result: ''
+      expression: ['28.1', '+'],
+      current: Value.None
     });
     t.end();
   });
@@ -86,16 +87,14 @@ test('pushOperator', tape => {
   tape.test('non-empty expression', t => {
     const store = {
       expression: ['28.1', '*'],
-      current: '3',
-      result: '1'
+      current: Value.Input('3')
     };
 
     subject(store, '+');
 
     t.deepEqual(store, {
       expression: ['28.1', '*', '3', '+'],
-      current: '',
-      result: ''
+      current: Value.None
     });
     t.end();
   });
@@ -107,14 +106,14 @@ test('clearAll', t => {
   const subject = sut.clearAll;
   const store = {
     expression: ['25', '+'],
-    current: '32'
+    current: Value.Input('33')
   };
 
   subject(store);
 
   t.deepEqual(store, {
     expression: [],
-    current: ''
+    current: Value.None
   });
   t.end();
 });
@@ -122,62 +121,32 @@ test('clearAll', t => {
 test('clearEntry', tape => {
   const subject = sut.clearEntry;
 
-  tape.test('no expression, current exists', t => {
-    const store = {
-      expression: [],
-      current: '25'
-    };
-
-    subject(store);
-
-    t.deepEqual(store, {
-      expression: [],
-      current: ''
-    });
-    t.end();
-  });
-
-  tape.test('expression exists, current exists', t => {
+  tape.test('current :: None', t => {
     const store = {
       expression: ['25', '+'],
-      current: '32'
+      current: Value.None
     };
 
     subject(store);
 
     t.deepEqual(store, {
       expression: ['25', '+'],
-      current: ''
+      current: Value.None
     });
     t.end();
   });
 
-  tape.test('expression exists, no current', t => {
+  tape.test('current :: Input', t => {
     const store = {
       expression: ['25', '+'],
-      current: ''
+      current: Value.Input('32')
     };
 
     subject(store);
 
     t.deepEqual(store, {
-      expression: [],
-      current: '25'
-    });
-    t.end();
-  });
-
-  tape.test('no expression, no current', t => {
-    const store = {
-      expression: [],
-      current: ''
-    };
-
-    subject(store);
-
-    t.deepEqual(store, {
-      expression: [],
-      current: ''
+      expression: ['25', '+'],
+      current: Value.None
     });
     t.end();
   });
@@ -188,17 +157,62 @@ test('clearEntry', tape => {
 test('evaluate', tape => {
   const subject = sut.evaluate;
 
-  tape.test('expression exists', t => {
+  tape.test('current :: None', t => {
     const store = {
-      expression: ['25', '*'],
-      current: '3'
+      expression: ['5', '*'],
+      current: Value.None
     };
 
     subject(store);
 
     t.deepEqual(store, {
       expression: [],
-      current: '75'
+      current: Value.Result(25)
+    });
+    t.end();
+  });
+
+  tape.test('current :: None, no expression', t => {
+    const store = {
+      expression: [],
+      current: Value.None
+    };
+
+    subject(store);
+
+    t.deepEqual(store, {
+      expression: [],
+      current: Value.Result(0)
+    });
+    t.end();
+  });
+
+  tape.test('current :: Result', t => {
+    const store = {
+      expression: ['3', '+'],
+      current: Value.Result(2)
+    };
+
+    subject(store);
+
+    t.deepEqual(store, {
+      expression: [],
+      current: Value.Result(5)
+    });
+    t.end();
+  });
+
+  tape.test('current :: Input', t => {
+    const store = {
+      expression: ['25', '*'],
+      current: Value.Input('3')
+    };
+
+    subject(store);
+
+    t.deepEqual(store, {
+      expression: [],
+      current: Value.Result(75)
     });
     t.end();
   });
@@ -206,50 +220,17 @@ test('evaluate', tape => {
   tape.test('no expression', t => {
     const store = {
       expression: [],
-      current: '71'
+      current: Value.Result(71)
     };
 
     subject(store);
 
     t.deepEqual(store, {
       expression: [],
-      current: '71'
-    });
-    t.end();
-  });
-
-  tape.test('no current (assume 0)', t => {
-    const store = {
-      expression: ['5', '*'],
-      current: ''
-    };
-
-    subject(store);
-
-    t.deepEqual(store, {
-      expression: [],
-      current: '0'
+      current: Value.Result(71)
     });
     t.end();
   });
 
   tape.end();
-});
-
-test('prepareNext', t => {
-  const subject = sut.prepareNext;
-  const store = {
-    expression: [],
-    current: '5',
-    result: 0
-  };
-
-  subject(store);
-
-  t.deepEqual(store, {
-    expression: [],
-    current: '',
-    result: '5'
-  });
-  t.end();
 });
