@@ -18,5 +18,12 @@ test('parse', tape => {
     t.end();
   });
 
+  tape.test('negative number', t => {
+    const result = subject('-2 * 5');
+
+    t.equal(result, -10);
+    t.end();
+  });
+
   tape.end();
 });

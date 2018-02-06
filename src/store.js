@@ -1,17 +1,17 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { findLast } from './util';
-import evaluate from './evaluate';
+import Type from 'union-type';
+import runEval from './evaluate';
 import { NUM, OP } from './types';
 
 Vue.use(Vuex);
 
-const DEFAULT = undefined;
+export const Value = Type({ None: [], Input: [String], Result: [Number] });
+
 const STATE_DEFAULTS = {
   isLazy: false,
   expression: [],
-  current: '',
-  result: '0' // nonbreaking space
+  current: Value.None
 };
 const set = values =>
   Object.entries(values).reduce(
@@ -22,60 +22,52 @@ const set = values =>
     {}
   );
 
-const isNum = value => !Number.isNaN(parseFloat(value));
+const getCurrent = state =>
+  state.current.case({ None: () => 0, Input: x => x, Result: x => x });
+const appendInput = (value, current) =>
+  value === '.' && current.includes(value) ? current : current + value;
+const evaluate = expression => runEval(expression.join(' '));
 
 export const mutations = {
   pushOperator: (state, value) => {
-    state.expression = state.expression.concat(state.current || '0', value);
-    state.current = '';
+    const newExpression = state.current.case({
+      None: () => state.expression.concat('0', value),
+      Input: current => state.expression.concat(current, value),
+      Result: current => state.expression.concat(current.toString(), value)
+    });
+    Object.assign(
+      state,
+      set({ expression: newExpression, current: Value.None })
+    );
   },
   inputNum: (state, value) => {
-    if (value === '.' && state.current.includes('.')) {
-      return;
-    }
-    Object.assign(state, set({ current: state.current + value }));
-  },
-  clearResult: state => {
-    Object.assign(state, set({ result: DEFAULT }));
+    const result = state.current.case({
+      Input: current => appendInput(value, current),
+      _: () => value
+    });
+    Object.assign(state, set({ current: Value.Input(result) }));
   },
   clearAll: state => {
-    Object.assign(state, set({ expression: DEFAULT, current: DEFAULT }));
+    Object.assign(state, set({ expression: [], current: Value.None }));
   },
   clearEntry: state => {
-    if (state.current) {
-      Object.assign(state, set({ current: DEFAULT }));
-    } else {
-      const last = findLast(isNum, state.expression);
-      Object.assign(
-        state,
-        set({ expression: DEFAULT, current: last ? last : DEFAULT })
-      );
-    }
+    Object.assign(state, set({ current: Value.None }));
   },
   evaluate: state => {
-    if (state.expression.length === 0) {
-      return;
+    const result = state.current.case({
+      None: () =>
+        state.expression.length > 0
+          ? evaluate([...state.expression, state.expression[0]])
+          : 0,
+      Result: x => evaluate([...state.expression, x]),
+      Input: x => evaluate([...state.expression, x])
+    });
+    if (result !== undefined) {
+      Object.assign(
+        state,
+        set({ expression: [], current: Value.Result(result) })
+      );
     }
-
-    const result = evaluate(
-      state.expression.concat(state.current || '0').join(' ')
-    );
-    Object.assign(
-      state,
-      set({
-        expression: DEFAULT,
-        current: result.toString()
-      })
-    );
-  },
-  prepareNext: state => {
-    Object.assign(
-      state,
-      set({
-        result: state.current || DEFAULT,
-        current: DEFAULT
-      })
-    );
   },
   toggleEvaluationMode: state => {
     state.isLazy = !state.isLazy;
@@ -83,13 +75,11 @@ export const mutations = {
 };
 
 const store = new Vuex.Store({
-  state: set({
-    expression: DEFAULT,
-    current: DEFAULT,
-    result: '0',
-    isLazy: DEFAULT
-  }),
+  state: set(STATE_DEFAULTS),
   mutations,
+  getters: {
+    current: getCurrent
+  },
   actions: {
     press: ({ state, commit }, { type, value }) => {
       if (type === OP) {
@@ -99,7 +89,6 @@ const store = new Vuex.Store({
         commit('pushOperator', value);
       } else if (type === NUM) {
         commit('inputNum', value);
-        commit('clearResult');
       } else {
         switch (value) {
           case 'AC':
@@ -110,7 +99,6 @@ const store = new Vuex.Store({
             break;
           case '=':
             commit('evaluate');
-            commit('prepareNext');
             break;
           case 'MODE':
             commit('toggleEvaluationMode');

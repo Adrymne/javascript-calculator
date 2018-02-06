@@ -29,7 +29,7 @@ const evaluate = ops => (a, expr) => {
 Implemented based on the following simplified arithmetic grammar:
 <expr>  ::= <expr> <addop> <term> | <term>
 <term>  ::= <term> <multop> <num> | <num>
-<num>   ::= <digit> <num> | <digit>
+<num>   ::= "<digit> <num> | <digit>
 <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "."
 <addop> ::= "+" | "-"
 <multop> ::= "*" | "/" | "%"
@@ -47,7 +47,7 @@ const arithmetic = createLanguage({
   eRest: r => seq(r.addOp, r.term).many(),
   term: r => seqMap(r.num, r.tRest, evaluate(MULT_OPS)),
   tRest: r => seq(r.multOp, r.num).many(),
-  num: () => regex(/[0-9.]+/).map(parseFloat),
+  num: () => regex(/-?[0-9.]+/).map(parseFloat),
   addOp: () => regex(/[+-]/).trim(optWhitespace),
   multOp: () => regex(/[*/%]/).trim(optWhitespace)
 });

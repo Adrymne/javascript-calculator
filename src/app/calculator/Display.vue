@@ -4,20 +4,19 @@
       {{ expression || '&nbsp;' }}
     </div>
     <h1>
-      {{ current || result }}
+      {{ current }}
     </h1>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
-  computed: mapState({
-    current: 'current',
-    result: 'result',
-    expression: state => state.expression.join(' ')
-  })
+  computed: {
+    ...mapState({ expression: state => state.expression.join(' ') }),
+    ...mapGetters(['current'])
+  }
 };
 </script>
 
